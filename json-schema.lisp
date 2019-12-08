@@ -56,6 +56,49 @@ TODO: Do it properly."
 (defmethod class<-object (name object)
   (with-hash-keys (("properties")) object
     `(defclass ,name ()
-       (,@ (loop :for key :being :the :hash-keys :of properties
-              :for property :being :the :hash-values :of properties :collect
+       (,@ (loop :for key :being :the :hash-key :using 
+                (hash-value property) :of properties :collect
                 (slot<-property key property object))))))
+
+(defgeneric json-constructor<-object (name object)
+  (:documentation "used to create the constructor for the"))
+
+(defgeneric json-validator<-object (name object format)
+  (:documentation "used to create the json validator for the object."))
+
+(defun property-validator<-property (schema key property json-sym)
+  "validate all aspects of the property
+
+we could make this faster just by declaiming the type of the value tbh"
+  (with-hash-keys (("type")) property
+    (with-hash-keys (("required" '())) schema
+      `(multiple-value-bind (value provided) (jsown:val-safe ,json-sym ,key)
+         ,(if (member key required :test #'string=)
+              `(and provided
+                    (typep value ',(cl-type<-json-schema-type type)))
+              `(or (not provided)
+                   (typep value ',(cl-type<-json-schema-type type))))))))
+
+
+(defmethod json-validator<-object (name object (format (eql :fast)))
+  (with-hash-keys (("properties")) object
+    `(defmethod validate-json ((class (eql ',name)) (json list) (format (eql :fast)))
+       (and
+        ,@ (loop :for key :being :the :hash-key :using
+                (hash-value property) :of properties :collect
+                (property-validator<-property object key property 'json))))))
+
+(defgeneric make-instance-from-json (class json)
+  (:documentation "create an instance of class from the json
+
+This should also validate the json provided against the schema?"))
+
+(defgeneric validate-json (class json format)
+  (:documentation "Validate the json against the schema
+
+https://json-schema.org/draft/2019-09/json-schema-core.html#rfc.section.10
+
+I think we're going to make a :fast format which will just ignore this spec
+and validate the class for the constructors.")
+  (:method (class (json string) format)
+    (validate-json class (jsown:parse json) format)))
