@@ -7,11 +7,12 @@
   :version "0.0.1"
   :depends-on ("cl-yaml" "cl-change-case" "jsown" "closer-mop" "defpackage-plus")
   :serial t
-  :components ((:file "package")
-               (:file "json-metaclass")
-               (:module "code" :components
-                        ((:file "generation-utils")
+  :components ((:module "code" :components
+                        ((:file "package")
+                         (:file "json-metaclass")
+                         (:file "generation-utils")
                          (:file "generation-option")
                          (:file "generation-protocol")
                          (:file "reader")
                          (:file "schema-lookup")))))
+
