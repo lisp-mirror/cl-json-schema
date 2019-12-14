@@ -1,0 +1,40 @@
+# ideasd
+
+ok so we're gonna have json readers, serializers and also an object store backend
+
+the json reader and writer you use will have to be configurable and i guess there's two
+ways of doing this, we either generate the store, serialize and read methods for each
+class or we use a metaclass or something like that to do somze wizard shjit who cares.
+
+## meta object
+
+we might want to keep the key in the slot class so that we know what to serialize a slot too.
+
+although we might not need to if we just add a method for each one or whatever.
+
+
+(defclass foo ()
+  ((foo :initarg :foo
+  
+
+## could use method hooks
+
+use method hooks to do things like add a storage backend if we just are not using meta objects
+
+metaclass will be needed if you want to save heap space on functions
+so we might need a way of extending what we can store in the class about slots etc.
+
+## we're gonn have issues
+
+meta object would be better than having generics witwh 1000 generated methods for some objects.
+
+## tests
+
+test fucking everything.
+
+## a slot is named something like type and you're fucked
+
+we need to watch when intern returns other than :inherited http://clhs.lisp.se/Body/f_find_s.htm
+
+when it does we can append the schema name on the front. Another alternative is not
+importing the whole of cl, but i don't think that's as good of an idea.

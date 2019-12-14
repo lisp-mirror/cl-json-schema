@@ -5,8 +5,12 @@
   :author "Gnuxie <Gnuxie@protonmail.com>"
   :license  "NON-VIOLENT PUBLIC LICENSE v2+"
   :version "0.0.1"
-  :depends-on ("cl-yaml" "cl-change-case" "jsown")
+  :depends-on ("cl-yaml" "cl-change-case" "jsown" "closer-mop")
   :serial t
   :components ((:file "package")
-               (:file "utils")
-               (:file "json-schema")))
+               (:file "json-metaclass")
+               (:module "code" :components
+                        ((:file "generation-utils")
+                         (:file "generation-protocol")
+                         (:file "reader")
+                         (:file "schema-lookup")))))

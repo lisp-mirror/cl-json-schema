@@ -88,10 +88,7 @@ we could make this faster just by declaiming the type of the value tbh"
                 (hash-value property) :of properties :collect
                 (property-validator<-property object key property 'json))))))
 
-(defgeneric make-instance-from-json (class json)
-  (:documentation "create an instance of class from the json
 
-This should also validate the json provided against the schema?"))
 
 (defgeneric validate-json (class json format)
   (:documentation "Validate the json against the schema
