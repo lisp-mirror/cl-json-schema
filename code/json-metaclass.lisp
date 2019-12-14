@@ -41,20 +41,20 @@
 
 (defclass json-serializable () ())
 
-(defmethod slot-key-pair ((object json-serializable) (slot json-serializable-slot) slot-name)
-  (when (slot-boundp object slot-name)
-    (cons (json-key-name slot) (slot-value object slot-name))))
-
 (defmethod closer-mop:compute-class-precedence-list ((class json-serializable-class))
   (cons (find-class 'json-serializable) (call-next-method class)))
 
+(defmethod slot-key-pair ((object json-serializable) (slot json-serializable-slot) slot-name)
+  (cons (json-key-name slot) (slot-value object slot-name)))
+
 (defmethod jsown:to-json ((object json-serializable))
-  (jsown:to-json
-   (remove-if
-    #'null
-    `(:obj ,@(loop :for class :in (c2mop:class-precedence-list (class-of object))
-                :appending
-                  (loop
-                     :for slot :in (c2mop:class-direct-slots class) :collect
-                       (slot-key-pair object slot (c2mop:slot-definition-name slot))))))))
+  (let ((json
+         `(:obj ,@(loop :for class :in (c2mop:class-precedence-list (class-of object))
+                     :appending
+                       (loop
+                          :for slot :in (c2mop:class-direct-slots class) :append
+                            (let* ((slot-name (c2mop:slot-definition-name slot)))
+                              (when (slot-boundp object slot-name)
+                                  (list (slot-key-pair object slot slot-name)))))))))
+    (jsown:to-json json)))
 
