@@ -12,7 +12,7 @@
 
 
 (defun schema-name<-path (path)
-  (intern (string-upcase (pathname-name path))))
+  (pathname-name path))
 
 (defun find-schema-from-file (path)
   (values (yaml:parse path)

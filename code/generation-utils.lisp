@@ -21,8 +21,10 @@ TODO: Do it properly."
 (defun %symbol<-key (key)
   (string-upcase (cl-change-case:param-case key)))
 
-(defun symbol<-key (key)
-  (intern (%symbol<-key key)))
+(defun symbol<-key (key &optional (package *package*))
+  (let ((sym (intern (%symbol<-key key) package)))
+    (defpackage+-1:ensure-export (list sym) package)
+    sym))
 
 (defun keyword<-key (key)
   (intern (%symbol<-key key) :keyword))

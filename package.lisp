@@ -7,6 +7,11 @@
    #:make-instance-from-json-using-serial
    #:make-instance-from-json
 
+   ;; mop option
+   #:mop-option
+   #:package-prefix
+   #:target-package
+   
    ;; generation
    #:produce-schema
    #:class<-object
