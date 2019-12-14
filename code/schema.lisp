@@ -36,3 +36,6 @@ like where it came from so that relative uri's can be resolved."))
   (make-instance 'schema
                  :object (yaml:parse path)
                  :uri path))
+
+(defun relative-schema (uri schema)
+  (merge-pathnames uri (uri schema)))

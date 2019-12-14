@@ -12,3 +12,4 @@
 ;;; with a fresh compilation unit, ensure the target packages and exports.
 (defpackage+-1:ensure-package (string-upcase "json-schema.test.event"))
 (defpackage+-1:ensure-package (string-upcase "json-schema.test.address"))
+(defpackage+-1:ensure-package (string-upcase "json-schema.test.sync-room-event"))
