@@ -8,9 +8,9 @@
              :initarg :cheese))
     (:metaclass json-serializable-class))
 
-(define-test make-instance-from-json
+(parachute:define-test make-instance-from-json
   
   (let* ((jsown-data '(:obj ("cheese" . "test-value")))
          (serializable-instance
           (make-instance-from-json-using-serial (find-class 'the-big-cheese-wheel) jsown-data)))
-    (is #'string= "test-value" (slot-value serializable-instance 'cheese))))
+    (parachute:is #'string= "test-value" (slot-value serializable-instance 'cheese))))

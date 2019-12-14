@@ -18,7 +18,10 @@
    #:slot<-property
 
 
-   ;; resolving
+   ;; schema
    #:find-schema
-   
+   #:schema
+   #:schema-name<-uri
+   #:name
+   #:find-schema-from-file
    ))

@@ -12,6 +12,7 @@
                          (:file "json-metaclass")
                          (:file "generation-utils")
                          (:file "generation-option")
+                         (:file "schema")
                          (:file "generation-protocol")
                          (:file "reader")
                          (:file "schema-lookup")))))

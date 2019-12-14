@@ -3,5 +3,5 @@
 |#
 
 (defpackage #:json-schema.test
-  (:use #:cl #:json-schema #:parachute)
+  (:use #:cl #:json-schema)
 )

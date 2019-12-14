@@ -8,9 +8,13 @@
   ((package-prefix :initarg :package-prefix
                    :initform "json-schema.generated."
                    :type string
-                   :accessor package-prefix))
-  (:documentation "This is just something to configure before passing to the generator.")
-  )
+                   :accessor package-prefix)
+
+   (ref-overrides :initarg :ref-overrides
+                  :initform '()
+                  :type list
+                  :accessor ref-overrides))
+  (:documentation "This is just something to configure before passing to the generator."))
 
 (defmethod target-package ((option mop-option) name)
   (let ((package-designator
