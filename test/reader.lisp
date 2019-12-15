@@ -6,9 +6,12 @@
 (defclass the-big-cheese-wheel ()
     ((cheese :json-key "cheese"
              :initarg :cheese))
-    (:metaclass json-serializable-class))
+  (:metaclass json-serializable-class))
+
+(c2mop:finalize-inheritance (find-class 'the-big-cheese-wheel))
 
 (parachute:define-test make-instance-from-json
+  :parent json-schema.test
   
   (let* ((jsown-data '(:obj ("cheese" . "test-value")))
          (serializable-instance

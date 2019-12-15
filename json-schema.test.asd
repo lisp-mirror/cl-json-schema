@@ -7,6 +7,7 @@
   :serial t
   :components ((:module "test" :components
                         ((:file "package")
+                         (:file "run")
                          (:file "generation-package")
                          (:file "generation")
                          (:file "reader")

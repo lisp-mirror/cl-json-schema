@@ -8,6 +8,7 @@
   (make-instance 'mop-option :package-prefix "json-schema.test."))
 
 (parachute:define-test test-produce-class
+  :parent (:json-schema.test json-schema.test)
 
   (let* ((sample-schema-jsown
          '(:OBJ ("type" . "object")

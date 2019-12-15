@@ -5,6 +5,7 @@
 (in-package #:json-schema.test.generation)
 
 (parachute:define-test test-schema-resolvation
+  :parent (:json-schema.test json-schema.test)
 
   (let* ((schema (find-schema (asdf:system-relative-pathname :json-schema.test
                                                              "test/schemas/event.yaml")))

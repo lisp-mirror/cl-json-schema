@@ -1,0 +1,15 @@
+stages:
+    - test
+    - build
+
+image : daewok/lisp-devel
+
+before_script:
+        - ln -s "${CI_PROJECT_DIR}" ~/quicklisp/local-projects/json-schema
+        - apt-get update -qy
+        - apt-get install -y git
+
+test:
+    stage: test
+    script:
+        - sbcl --load test/ci-tests.lisp --disable-debugger --quit
