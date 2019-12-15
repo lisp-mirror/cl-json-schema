@@ -18,7 +18,14 @@
 that is overriden, the slots for this schema are placed into the referee
 rather than inherited, which is actually the way json schema should behave
 if we were not abusing it to generate our classes.
-"))
+")
+   (whitelist :initarg :whitelist
+              :accessor whitelist
+              :initform '()
+              :type list
+              :documentation "Only the schemas named here will be implemented.
+
+Empty means that it's not being used."))
   (:documentation "This is just something to configure before passing to the generator."))
 
 (defmethod target-package ((option mop-option) name)
@@ -32,4 +39,14 @@ if we were not abusing it to generate our classes.
   (declare (ignore env))
   `(make-instance 'mop-option
                   :package-prefix ,(package-prefix mop-option)
-                  :ref-overrides ',(ref-overrides mop-option)))
+                  :ref-overrides ',(ref-overrides mop-option)
+                  :whitelist ',(whitelist mop-option)))
+
+(defgeneric inherit-schema-p (schema-name option)
+  (:documentation "Determine if the generator should inherit this schema into
+other schemas or pass through all slots/behavoir directly.")
+
+  (:method (schema-name (option mop-option))
+    (and (not (member schema-name (ref-overrides option) :test #'string=))
+         (not (null (whitelist option)))
+         (member schema-name (whitelist option) :test #'string=))))

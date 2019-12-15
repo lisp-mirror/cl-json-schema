@@ -41,7 +41,7 @@ for this schema definition.")
                       parents)
            ,(append (direct-slots<-schema schema option)
                     more-slots)
-           (:metaclass json-schema:json-serializable-class))
+           ,@ (class-options<-schema schema option))
          ;; this is because our constructors need the c-p-l before make-instance.
          (c2mop:finalize-inheritance (find-class ',(internal-name schema option)))))))
 
@@ -55,6 +55,12 @@ for this schema definition.")
            :accessor ,(symbol<-key name target-package)
            :type ,(cl-type<-json-schema-type type)
            :json-key ,name)))))
+
+(defgeneric class-options<-schema (schema option)
+  (:documentation "a list of the class options for the class definition.")
+  (:method (schema (option mop-option))
+    (declare (ignore schema option))
+    '((:metaclass json-schema:json-serializable-class))))
 
 (defgeneric resolve-references (schema option)
   (:documentation "Resolve the references in the schema
@@ -77,16 +83,16 @@ specified in the schema")
                (let ((ref (gethash "$ref" item)))
                  (when (not (null ref))
                    (let ((referenced-schema (find-schema (relative-schema ref schema))))
-                     (cond ((member (name referenced-schema) (ref-overrides option) :test #'string=)
-                            (add-slots
-                             (direct-slots<-schema referenced-schema option))
-                            (multiple-value-bind (next-parents next-slots)
-                                (resolve-references referenced-schema option)
-                              (add-parents next-parents)
-                              (add-slots next-slots)))
-
-                           (t
-                            (push referenced-schema parents)))))))))
+                     (cond
+                       ((inherit-schema-p (name referenced-schema) option)
+                        (push referenced-schema parents))
+                       (t 
+                        (add-slots
+                         (direct-slots<-schema referenced-schema option))
+                        (multiple-value-bind (next-parents next-slots)
+                            (resolve-references referenced-schema option)
+                          (add-parents next-parents)
+                          (add-slots next-slots))))))))))
       (values 
        parents
        more-slots))))
