@@ -16,6 +16,7 @@
    #:produce-schema
    #:class<-object
    #:slot<-property
+   #:ensure-schema-class
 
 
    ;; schema

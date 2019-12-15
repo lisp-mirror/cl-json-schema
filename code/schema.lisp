@@ -17,6 +17,15 @@
 
 like where it came from so that relative uri's can be resolved."))
 
+(defmethod make-load-form ((schema schema) &optional env)
+  (declare (ignore env))
+  `(make-instance 'schema
+                  :object
+                  (alexandria:alist-hash-table
+                   ',(alexandria:hash-table-alist (object schema))
+                   :test 'equal)
+                  :uri ,(uri schema)))
+
 
 (defgeneric find-schema (uri)
   (:documentation "retruns a schema instance")
@@ -29,8 +38,15 @@ like where it came from so that relative uri's can be resolved."))
     (pathname-name path)))
 
 (defgeneric name (schema)
+  (:documentation "Return the name of the schema as it appears in it's path.")
   (:method ((schema schema))
     (schema-name<-uri (uri schema))))
+
+(defgeneric internal-name (schema option)
+  (:documentation "Return the name of the schema as a transformed class-name")
+  (:method ((schema schema) (option mop-option))
+    (let ((target-package (target-package option (name schema))))
+      (symbol<-key (name schema) target-package))))
 
 (defun find-schema-from-file (path)
   (make-instance 'schema

@@ -29,3 +29,19 @@
     (verbose:debug :test-schema-resolvation (jsown:to-json inherited-event))
     (parachute:is #'equal sample-sync-room-event-jsown
                   (jsown:parse (jsown:to-json inherited-event)))))
+
+(parachute:define-test test-ref-overrides
+  :parent test-schema-resolvation
+
+  (let* ((schema-option
+         (make-instance 'mop-option
+                        :package-prefix "json-schema.test."
+                        :ref-overrides '("sync_room_event")))
+
+         (room-event-schema
+          (find-schema (asdf:system-relative-pathname :json-schema.test
+                                                      "test/schemas/room_event.yaml")))
+
+         (produced-schema (produce-schema room-event-schema schema-option)))
+    (v:debug :test-ref-overrides "~w" produced-schema)
+    (parachute:finish (ensure-schema-class room-event-schema schema-option))))
