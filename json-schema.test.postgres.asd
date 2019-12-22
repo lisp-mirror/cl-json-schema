@@ -8,5 +8,6 @@
   :components ((:module "test"
                         :components
                         ((:module "postgres" :components
-                                   ((:file "package")
-                                    (:file "generation")))))))
+                                  ((:file "package")
+                                   (:file "run")
+                                   (:file "generation")))))))

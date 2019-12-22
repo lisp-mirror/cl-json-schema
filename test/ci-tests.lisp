@@ -8,3 +8,5 @@
 (ql:update-dist "quicklisp" :prompt nil)
 (ql:quickload :json-schema.test)
 (json-schema.test:ci-run)
+(ql:quickload :json-schema.test.postgres)
+(json-schema.test.postgres:ci-run)

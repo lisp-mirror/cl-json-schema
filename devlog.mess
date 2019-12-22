@@ -19,6 +19,8 @@ The way i solved this for now is just adding a find-ids to the postgres option
 at the minute it's going to return all ids and i'm stopping now and setting up
 the gitlab ci to use postgres so i can make sure i'm not gonna slip on testing.
 
+also rename the find-ids to find-keys. It's confusing otherwise.
+
 
 # ideasd
 
