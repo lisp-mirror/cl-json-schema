@@ -55,3 +55,6 @@ like where it came from so that relative uri's can be resolved."))
 
 (defun relative-schema (uri schema)
   (merge-pathnames uri (uri schema)))
+
+(defmethod target-package ((option mop-option) (schema schema))
+  (target-package option (name schema)))

@@ -1,3 +1,25 @@
+# 2019-12-22
+
+ok so there's this issue where if you inherit a schema you get something like
+((my-inherited-schema:foo)
+ (my-actual-schema:bar))
+
+which is bad when we want the postmodern backend to have `:keys`
+This is also potentially desirable behavoir
+
+both can be resolved with some kind of extensible object which abstracts
+a slot option, but i feel like we're adding too much shit if we do that.
+might be worth it though.
+
+No that's not a good idea, slot options might be but i think you just need
+to ensure that the symbol is also imported and exported in the current package
+by resolve-referrences.
+
+The way i solved this for now is just adding a find-ids to the postgres option
+at the minute it's going to return all ids and i'm stopping now and setting up
+the gitlab ci to use postgres so i can make sure i'm not gonna slip on testing.
+
+
 # ideasd
 
 ok so we're gonna have json readers, serializers and also an object store backend

@@ -62,6 +62,13 @@ for this schema definition.")
     (declare (ignore schema option))
     '((:metaclass json-schema:json-serializable-class))))
 
+(defun ensure-inherit (symbol target-package)
+  "ensure that the symbol is imported into the target-package
+and also exported from the target package."
+  (defpackage+-1:inherit-from (symbol-package symbol)
+                              (list (symbol-name symbol))
+                              target-package))
+
 (defgeneric resolve-references (schema option)
   (:documentation "Resolve the references in the schema
 
@@ -78,21 +85,21 @@ specified in the schema")
              (add-parents (new-parents)
                (setf parents (append parents new-parents))))
         
-        (with-hash-keys (("allOf")) (object schema)
-          (loop :for item :in all-of :do
-               (let ((ref (gethash "$ref" item)))
-                 (when (not (null ref))
-                   (let ((referenced-schema (find-schema (relative-schema ref schema))))
-                     (cond
-                       ((inherit-schema-p (name referenced-schema) option)
-                        (push referenced-schema parents))
-                       (t 
-                        (add-slots
-                         (direct-slots<-schema referenced-schema option))
-                        (multiple-value-bind (next-parents next-slots)
-                            (resolve-references referenced-schema option)
-                          (add-parents next-parents)
-                          (add-slots next-slots))))))))))
+        (do-referenced-schemas referenced-schema schema
+         (cond
+           ((inherit-schema-p (name referenced-schema) option)
+            (push referenced-schema parents))
+           (t 
+            (add-slots
+             (direct-slots<-schema referenced-schema option))
+            (multiple-value-bind (next-parents next-slots)
+                (resolve-references referenced-schema option)
+              (add-parents next-parents)
+              (add-slots next-slots)
+              (mapc (lambda (slot-option)
+                      (ensure-inherit (car slot-option)
+                                      (target-package option schema)))
+                    next-slots))))))
       (values 
        parents
        more-slots))))

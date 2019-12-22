@@ -37,3 +37,16 @@ TODO: Do it properly."
                    `(,(symbol<-key key)
                       (gethash ,key ,table ,default)))))
      ,@body))
+
+(defmacro do-referenced-schemas (referenced-schema schema &body body)
+  "provides an iterator for referenced schema from a schema 
+REFERENCED-SCHEMA is the symbol to bind the refernced schema to.
+SCHEMA is a schema.
+"
+  (alexandria:with-gensyms (item all-of ref)
+    `(let ((,all-of (gethash "allOf" (object ,schema))))
+      (loop :for ,item :in ,all-of :do
+           (let ((,ref (gethash "$ref" ,item)))
+             (unless (null ,ref)
+               (let ((,referenced-schema (find-schema (relative-schema ,ref schema))))
+                 ,@body)))))))
