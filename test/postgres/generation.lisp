@@ -5,6 +5,7 @@
 (in-package #:json-schema.test.postgres)
 
 (parachute:define-test schema-creation
+  :parent test-postgres
 
   (let* ((schema-option (make-instance 'json-schema.postgres::postgres-option
                                        :package-prefix "json-schema.test.postgres."
@@ -14,4 +15,7 @@
                                       "test/schemas/room_event.yaml")))
          (produced-schema (produce-schema schema schema-option)))
     (v:debug :schema-creation "~w" produced-schema)
-    (parachute:finish (eval produced-schema))))
+    (parachute:finish (eval produced-schema))
+    (parachute:finish (postmodern:execute
+                       (postmodern:dao-table-definition
+                        'json-schema.test.postgres.room-event:room-event)))))
