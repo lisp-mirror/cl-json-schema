@@ -10,11 +10,11 @@
 (defmethod make-load-form ((option postgres-option) &optional env)
   (declare (ignore env))
   (with-accessors ((whitelist whitelist)
-                   (package-prefix package-prefix)
+                   (package-designator package-designator)
                    (ref-overrides ref-overrides))
       option
     `(make-instance 'postgres-option
-                    :package-prefix ,package-prefix 
+                    :package-designator ,package-designator 
                     :whitelist ,whitelist
                     :ref-overrides ,ref-overrides)))
 
@@ -52,7 +52,7 @@ TODO: Do it properly."
           (unless (null postmodern-keys)
             (let ((key-syms
                    (mapcar (lambda (sym)
-                             (symbol<-key sym (target-package option referenced-schema)))
+                             (symbol<-key sym (target-package option)))
                            postmodern-keys)))
               (apply #'add-ids key-syms)))
           (apply #'add-ids (find-ids referenced-schema option)))))
