@@ -10,8 +10,8 @@
 
 (in-package #:json-schema.test.postgres)
 (defpackage+-1:ensure-package
- (string-upcase "json-schema.test.postgres"))
+ (string-upcase "json-schema.test.postgres.generated"))
 (defpackage+-1:ensure-export '("ROOM-EVENT")
-                             (find-package :json-schema.test.postgres))
+                             (find-package :json-schema.test.postgres.generated))
 
 (parachute:define-test test-postgres)

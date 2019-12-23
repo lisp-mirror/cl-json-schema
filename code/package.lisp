@@ -16,7 +16,7 @@
 
    ;; mop option
    #:mop-option
-   #:package-prefix
+   #:package-designator
    #:target-package
    #:whitelist
    #:ref-overrides
@@ -27,7 +27,7 @@
    #:slot<-property
    #:ensure-schema-class
    #:class-options<-schema
-
+   #:generate-utility-methods
 
    ;; schema
    #:find-schema

@@ -9,7 +9,7 @@
 
   (let* ((schema-option (make-instance 'json-schema.postgres::postgres-option
                                        :package-designator
-                                       (string-upcase "json-schema.test.postgres")
+                                       (string-upcase "json-schema.test.postgres.generated")
                                        :whitelist '("room_event")))
          (schema (find-schema (asdf:system-relative-pathname
                                       :json-schema.test
@@ -19,4 +19,4 @@
     (parachute:finish (eval produced-schema))
     (parachute:finish (postmodern:execute
                        (postmodern:dao-table-definition
-                        'json-schema.test.postgres:room-event)))))
+                        'json-schema.test.postgres.generated:room-event)))))
