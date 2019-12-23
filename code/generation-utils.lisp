@@ -6,7 +6,8 @@
 
 (declaim (inline %symbol<-key symbol<-key keyword<-key))
 (defun %symbol<-key (key)
-  (string-upcase (cl-change-case:param-case key)))
+  (declare (type string key))
+  (string-upcase (substitute #\- #\_ key)))
 
 (defun symbol<-key (key &optional (package *package*))
   (let ((sym (intern (%symbol<-key key) package)))

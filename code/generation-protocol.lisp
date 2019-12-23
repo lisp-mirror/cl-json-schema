@@ -54,14 +54,6 @@ for this schema definition.")
                    (unless (null inner-schema)
                      (produce-schema inner-schema option))))))))
 
-(defun inner-class (inner-schema option)
-  "produce an inner class from the object."
-  `(progn (defclass ,(internal-name inner-schema option) ()
-            ,(direct-slots<-schema inner-schema option)
-            (:metaclass json-serializable-class))
-
-          ,(find-inner-classes inner-schema option)))
-
 (defgeneric class<-object (schema option)
   (:documentation "Produce a class from a json-schema object.")
 

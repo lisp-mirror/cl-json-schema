@@ -36,7 +36,7 @@ Empty means that it's not being used."))
 (defmethod make-load-form ((mop-option mop-option) &optional env)
   (declare (ignore env))
   `(make-instance 'mop-option
-                  :package-prefix ,(package-prefix mop-option)
+                  :package-designator ,(package-designator mop-option)
                   :ref-overrides ',(ref-overrides mop-option)
                   :whitelist ',(whitelist mop-option)))
 
