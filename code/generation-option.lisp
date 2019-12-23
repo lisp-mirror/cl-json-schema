@@ -5,10 +5,10 @@
 (in-package #:json-schema)
 
 (defclass mop-option ()
-  ((package-prefix :initarg :package-prefix
-                   :initform "json-schema.generated."
-                   :type string
-                   :accessor package-prefix)
+  ((package-designator :initarg :package-designator
+                       :initform "JSON-SCHEMA.GENERATED"
+                       :type string
+                       :accessor package-designator)
 
    (ref-overrides :initarg :ref-overrides
                   :initform '()
@@ -28,10 +28,8 @@ if we were not abusing it to generate our classes.
 Empty means that it's not being used."))
   (:documentation "This is just something to configure before passing to the generator."))
 
-(defmethod target-package ((option mop-option) name)
-  (let ((package-designator
-         (string-upcase (concatenate 'string (package-prefix option)
-                                     (%symbol<-key name)))))
+(defmethod target-package ((option mop-option))
+  (let ((package-designator (package-designator option)))
     (defpackage+-1:ensure-package package-designator)
     (find-package package-designator)))
 

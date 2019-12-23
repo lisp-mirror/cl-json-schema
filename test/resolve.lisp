@@ -25,7 +25,7 @@
   (let* ((sample-sync-room-event-jsown
           '(:obj ("type" . "m.room.message")))
          (inherited-event
-          (make-instance-from-json 'json-schema.test.sync-room-event::sync-room-event
+          (make-instance-from-json 'json-schema.test.generated::sync-room-event
                                    sample-sync-room-event-jsown)))
     (verbose:debug :test-schema-resolvation (jsown:to-json inherited-event))
     (parachute:is #'equal sample-sync-room-event-jsown
@@ -36,7 +36,7 @@
 
   (let* ((schema-option
          (make-instance 'mop-option
-                        :package-prefix "json-schema.test."
+                        :package-designator (string-upcase "json-schema.test.room-event")
                         :ref-overrides '("sync_room_event")))
 
          (room-event-schema

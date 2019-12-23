@@ -4,6 +4,7 @@
   (:use #:cl)
   (:export
    #:json-serializable-class
+   #:json-serializable
    #:make-instance-from-json-using-serial
    #:make-instance-from-json
 

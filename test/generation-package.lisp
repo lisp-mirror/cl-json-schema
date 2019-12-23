@@ -10,6 +10,5 @@
 ;;; after immediatly ensuring the package at the top of the file.
 ;;; maybe we put thses tests in their own package and in the package file
 ;;; with a fresh compilation unit, ensure the target packages and exports.
-(defpackage+-1:ensure-package (string-upcase "json-schema.test.event"))
-(defpackage+-1:ensure-package (string-upcase "json-schema.test.address"))
-(defpackage+-1:ensure-package (string-upcase "json-schema.test.sync-room-event"))
+(defpackage+-1:ensure-package (string-upcase "json-schema.test.generated"))
+

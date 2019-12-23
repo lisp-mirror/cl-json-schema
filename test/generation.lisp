@@ -5,7 +5,7 @@
 (in-package #:json-schema.test.generation)
 
 (defvar *schema-option*
-  (make-instance 'mop-option :package-prefix "json-schema.test."))
+  (make-instance 'mop-option :package-designator "JSON-SCHEMA.TEST.GENERATED"))
 
 (parachute:define-test test-produce-class
   :parent (:json-schema.test json-schema.test)
@@ -26,7 +26,7 @@
   (let* ((address-jsown '(:obj ("house_number" . 13)
                           ("street_name" . "long road")
                           ("street_type" . "Street")))
-         (an-address (make-instance-from-json 'json-schema.test.address::address
+         (an-address (make-instance-from-json 'json-schema.test.generated::address
                                               address-jsown)))
     (parachute:of-type string (jsown:to-json an-address))
     (verbose:debug :test-produce-class (jsown:to-json an-address))

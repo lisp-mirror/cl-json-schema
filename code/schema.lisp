@@ -17,6 +17,16 @@
 
 like where it came from so that relative uri's can be resolved."))
 
+(defclass inner-schema (schema)
+  ((name :initarg :name
+          :accessor name
+          :documentation "The name as it appears as a property on the parent-schema."))
+  (:documentation "Represents a property in a schema that is an object with properties.
+
+Really don't know if this should be inherting schema but we'll stick to it.
+Way to fix is to just say not every schema will have a uri.
+I guess this is a sort of anon schema."))
+
 (defmethod make-load-form ((schema schema) &optional env)
   (declare (ignore env))
   `(make-instance 'schema
@@ -45,7 +55,7 @@ like where it came from so that relative uri's can be resolved."))
 (defgeneric internal-name (schema option)
   (:documentation "Return the name of the schema as a transformed class-name")
   (:method ((schema schema) (option mop-option))
-    (let ((target-package (target-package option (name schema))))
+    (let ((target-package (target-package option)))
       (symbol<-key (name schema) target-package))))
 
 (defun find-schema-from-file (path)
@@ -56,5 +66,4 @@ like where it came from so that relative uri's can be resolved."))
 (defun relative-schema (uri schema)
   (merge-pathnames uri (uri schema)))
 
-(defmethod target-package ((option mop-option) (schema schema))
-  (target-package option (name schema)))
+

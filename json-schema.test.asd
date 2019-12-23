@@ -11,4 +11,5 @@
                          (:file "generation-package")
                          (:file "generation")
                          (:file "reader")
-                         (:file "resolve")))))
+                         (:file "resolve")
+                         (:file "inner-schemas")))))

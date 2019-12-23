@@ -1,3 +1,25 @@
+## NAME CONFLICT
+
+### create packages in both envs first
+
+Add a generic to the protocol to create the packages in both the compilation and load
+envinronments before we produce as schema. Downsides are that this requires you to read
+the schema twice.
+
+### start at the root and go down
+
+create the parents first and import their symbols in both envs before
+we do any work on generating slots, i mean this is how it should be anyways right?
+
+This is how it should be anyways.
+
+But is it sane to have pakcages for each schema to begin with?
+
+Well not really because we'd be comparing properties with #'string-equal
+to see if they'd already appeared in the heirarchy, it would just be better
+to keep everything in a heriarchy in the same package.
+
+
 # 2019-12-22
 
 ok so there's this issue where if you inherit a schema you get something like
@@ -20,6 +42,57 @@ at the minute it's going to return all ids and i'm stopping now and setting up
 the gitlab ci to use postgres so i can make sure i'm not gonna slip on testing.
 
 also rename the find-ids to find-keys. It's confusing otherwise.
+
+### multiple inheritance problem
+
+We basically have a problem where some properties are given twice because they either
+add more information to the validation schema or they just are lazy and included it in
+again.
+
+There should be a better way to solve this than using precedence since if they
+are simply expanding on the definition, then you're kind of in for trouble
+when you are not inheriting the option but simply merging the option.
+
+Maybe there does need to be some kind of merge mechanism but that's kind of complicated
+and it would be easier to just edit the schemas.
+
+This really can't be solved until validation is taken care of.
+
+Like, things aren't really a slot until they get to their defacto class and that
+information can be overwritten, so i guess we can use the slot option plist
+and compare slotnames with :test #'string= :key #'symbol-name? actually don't need that
+string-equal is a thing btw. In this case you would only add if it isn't there
+since the most recent version is the furthest from the root 
+
+
+
+We also need to fix m.room -> m-room becauise that's annoying
+
+## nested properties problem
+
+### solution 1
+
+have the slot names go like content-session-id so that content is prefixed to the front
+
+no that's terrible please don't do that
+
+### solution 2
+
+have a typed schema, that inherits one schema directly and asserts that the type field is correct if given.
+
+Then there will be a 'content' or 'nested' properties schema associated with the typed schema
+which will be a bound json-serializable in the content slot
+
+when the dao is saved, you can either chose to do some bs relational mapping
+or just serialize the slot to json string for the database.
+
+#### problems
+what about nested nested properties?? Well we just do the same thing.
+
+This probably requires at least one new metaclass
+
+So i guess what we do is make a class called (schema-name)-(property-name)
+for a prperty with something in it and carry on as normal.
 
 
 # ideasd
