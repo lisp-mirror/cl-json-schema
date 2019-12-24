@@ -2,7 +2,7 @@
     Copyright (C) 2019 Gnuxie <Gnuxie@protonmail.com>
 |#
 
-(in-package #:json-schema)
+(in-package #:json-schema.schema)
 
 (declaim (inline %symbol<-key symbol<-key keyword<-key))
 (defun %symbol<-key (key)

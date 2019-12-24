@@ -37,7 +37,7 @@ TODO: Do it properly."
 
 
 (defmethod slot<-property (name property parent-schema (option postgres-option))
-  (json-schema:with-hash-keys (("type")) property
+  (with-hash-keys (("type")) property
     (append (call-next-method)
             (list :col-type (postmodern-type<-json-schema-type type)))))
 

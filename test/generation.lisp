@@ -18,7 +18,7 @@
              ("enum" "Street" "Avenue" "Boulevard")))
            ("additionalProperties")))
          (sample-schema-json (jsown:to-json sample-schema-jsown))
-         (sample-schema (make-instance 'schema :uri #P"address" :object (yaml:parse sample-schema-json)))
+         (sample-schema (make-instance 'uri-schema :uri #P"address" :object (yaml:parse sample-schema-json)))
          (produced-schema (produce-schema sample-schema *schema-option*)))
     (verbose:debug :test-produce-class "~w" produced-schema)
     (parachute:finish (eval produced-schema)))

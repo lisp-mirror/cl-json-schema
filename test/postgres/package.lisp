@@ -3,7 +3,7 @@
 |#
 
 (defpackage #:json-schema.test.postgres
-  (:use #:cl #:json-schema #:json-schema.postgres)
+  (:use #:cl #:json-schema #:json-schema.schema #:json-schema.postgres)
   (:export #:run
            #:ci-run
            #:test-postgres))

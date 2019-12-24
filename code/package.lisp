@@ -1,18 +1,12 @@
 ;;;; package.lisp
 
 (defpackage #:json-schema
-  (:use #:cl)
+  (:use #:cl #:json-schema.schema)
   (:export
    #:json-serializable-class
    #:json-serializable
    #:make-instance-from-json-using-serial
    #:make-instance-from-json
-
-   ;; utils
-   #:with-hash-keys
-   #:symbol<-key
-   #:do-referenced-schemas
-   
 
    ;; mop option
    #:mop-option
@@ -28,13 +22,4 @@
    #:ensure-schema-class
    #:class-options<-schema
    #:generate-utility-methods
-
-   ;; schema
-   #:find-schema
-   #:schema
-   #:schema-name<-uri
-   #:name
-   #:find-schema-from-file
-   #:object
-   #:uri
    ))

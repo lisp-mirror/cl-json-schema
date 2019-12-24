@@ -48,3 +48,6 @@ other schemas or pass through all slots/behavoir directly.")
     (and (not (member schema-name (ref-overrides option) :test #'string=))
          (not (null (whitelist option)))
          (member schema-name (whitelist option) :test #'string=))))
+
+(defmethod json-schema.schema:internal-name ((schema schema) (option mop-option))
+    (internal-name schema (target-package option)))

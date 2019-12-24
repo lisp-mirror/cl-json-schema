@@ -4,8 +4,8 @@
 
 (in-package #:json-schema)
 
+;;; base method
 (defmethod jonathan:%to-json ((object json-serializable))
-  (format t "wohoo")
   (jonathan:with-object
     (loop :for class :in (c2mop:class-precedence-list (class-of object)) :do
          (loop
@@ -15,29 +15,32 @@
                   (jonathan:write-key-value (json-key-name slot)
                                             (slot-value object slot-name))))))))
 
-(defmethod jonathan:%to-json :around ((object json-schema.test.address::address))
-  (jonathan:with-object
-    (when (slot-boundp object 'json-schema.test.address:house-number)
-      (jonathan:write-key-value "house_number" (slot-value object 'json-schema.test.address:house-number)))
-    (jonathan:write-key-value "street_name" (slot-value object 'json-schema.test.address:street-name))
-    (jonathan:write-key-value "street_type" (slot-value object 'json-schema.test.address:street-type))))
+;;; faster method, would be nice if we could use the compile-encoder
+;;; but it doesn't account for unbound slots.
+(defun %to-json<-finalized-class (class)
+  (declare (type json-serializable-class class))
+  `(defmethod jonathan:%to-json :around ((object ,(class-name class)))
+     (jonathan:with-object
+       ,@(loop :for slot :in (c2mop:class-direct-slots class) :collect
+              (let ((slot-name (c2mop:slot-definition-name slot)))
+                `(when (slot-boundp object ',slot-name)
+                   (jonathan:write-key-value
+                    ,(json-key-name slot)
+                    (slot-value object ',slot-name))))))))
 
-(let ((compile-encoder
-          (jonathan:compile-encoder () (house-number street-name street-type)
-            (list "house_number" house-number
-                  "street_name" street-name
-                  "street_type" street-type))))
-  (defmethod jonathan:%to-json :around ((object json-schema.test.address::address))
-             (funcall compile-encoder
-               (slot-value object 'json-schema.test.address:house-number)
-               (slot-value object 'json-schema.test.address:street-name)
-               (slot-value object 'json-schema.test.address:street-type))))
-
-(let ((compile-encoder
-          (jonathan:compile-encoder () (house-number street-name street-type)
-            (list "house_number" house-number))))
-  (defmethod jonathan:%to-json :around ((object json-schema.test.address::address))
-             (funcall compile-encoder
-               (slot-value object 'json-schema.test.address:house-number))))
+(defun key-normalizer (string)
+           (declare (type string string))
+           (declare (optimize (speed 3) (safety 0)))
+           (loop :for c :across string
+              :for i :from 0 :by 1 :do
+                (setf (aref string i)
+                      (let ((char (char-upcase c)))
+                        (if (eql char #\_)
+                            #\-
+                            char))))
+           string)
 
 
+(defmethod make-instance-from-json ((class json-serializable-class) (json string))
+  (apply #'make-instance class
+         (jonathan:parse json :keyword-normalizer #'key-normalizer)))

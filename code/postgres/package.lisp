@@ -3,6 +3,6 @@
 |#
 
 (defpackage #:json-schema.postgres
-  (:use #:cl #:json-schema)
+  (:use #:cl #:json-schema #:json-schema.schema)
   (:export #:json-store-class
            #:json-store-slot))

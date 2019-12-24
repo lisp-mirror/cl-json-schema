@@ -3,7 +3,7 @@
 |#
 
 (defpackage #:json-schema.test.generation
-  (:use #:cl #:json-schema))
+  (:use #:cl #:json-schema #:json-schema.schema))
 
 ;;; because the package has not been created in this compilation unit
 ;;; we will have to use target-package::sym so the reader doesn't explode

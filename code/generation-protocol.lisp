@@ -46,7 +46,7 @@ for this schema definition.")
                  (let* ((inner-properties (gethash "properties" property))
                         (inner-schema
                          (and inner-properties
-                              (make-instance 'inner-schema
+                              (make-instance 'named-schema
                                              :object property
                                              :name (format nil "~a-~a"
                                                            (internal-name schema option)

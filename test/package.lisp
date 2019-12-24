@@ -3,7 +3,7 @@
 |#
 
 (defpackage #:json-schema.test
-  (:use #:cl #:json-schema)
+  (:use #:cl #:json-schema #:json-schema.schema)
   (:export
    #:json-schema.test
    #:run
