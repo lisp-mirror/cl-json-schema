@@ -29,18 +29,18 @@
                     (slot-value object ',slot-name))))))))
 
 (defun key-normalizer (string)
-           (declare (type string string))
-           (declare (optimize (speed 3) (safety 0)))
-           (loop :for c :across string
-              :for i :from 0 :by 1 :do
-                (setf (aref string i)
-                      (let ((char (char-upcase c)))
-                        (if (eql char #\_)
-                            #\-
-                            char))))
-           string)
+  (declare (type string string))
+  (declare (optimize (speed 3) (safety 0)))
+  (loop :for c :across string
+     :for i :from 0 :by 1 :do
+       (setf (aref string i)
+             (let ((char (char-upcase c)))
+               (if (eql char #\_)
+                   #\-
+                   char))))
+  string)
 
 
-(defmethod make-instance-from-json ((class json-serializable-class) (json string))
+(defmethod make-instance-from-json ((class json-serializable-class) json)
   (apply #'make-instance class
          (jonathan:parse json :keyword-normalizer #'key-normalizer)))

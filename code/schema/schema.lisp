@@ -44,7 +44,10 @@ I guess this is a sort of anon schema."))
 
 (defgeneric schema-name<-uri (path)
   (:method ((path pathname))
-    (pathname-name path)))
+    (alexandria:switch ((pathname-type path) :test #'string=)
+      ("yaml" (pathname-name path))
+      ("json" (pathname-name path))
+      (t (file-namestring path)))))
 
 (defgeneric internal-name (schema package)
   (:documentation "Return the name of the schema as a transformed class-name")

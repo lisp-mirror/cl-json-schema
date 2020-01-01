@@ -14,6 +14,7 @@
    #:target-package
    #:whitelist
    #:ref-overrides
+   #:json-key-name
    
    ;; generation
    #:produce-schema
