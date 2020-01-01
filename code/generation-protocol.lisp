@@ -65,9 +65,16 @@ for this schema definition.")
                ,@(mapcar (lambda (schema) `(ensure-schema-class ,schema option))
                          parents)))
          (defclass ,(internal-name schema option)
-             ,(mapcar (lambda (schema)
-                        (internal-name schema option))
-                      parents)
+             ,(or (mapcar (lambda (schema)
+                            (internal-name schema option))
+                          parents)
+                  ;; this is here because we were injecting
+                  ;; this classi into the c-p-l but while that allows us to use
+                  ;; methods with the param-specialiser json-serializable
+                  ;; it means that any instance will not be
+                  ;; (typep instance 'json-serializable)
+                  ;; there's probably a better way to fix this.
+                  (list 'json-schema:json-serializable))
            ,slots
            ,@ (class-options<-schema schema option))
          ;; this is because our constructors need the c-p-l before make-instance.

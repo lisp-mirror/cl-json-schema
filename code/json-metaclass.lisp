@@ -41,6 +41,11 @@
 
 (defclass json-serializable () ())
 
+;;; this works when you specify 'json-serializable as the param-specialiser
+;;; but any instance of a class with the meta-class json-serializable-class
+;;; will not be (typep instance 'json-serializable)
+;;; which is really bad!!!!
+#+ (or)
 (defmethod closer-mop:compute-class-precedence-list ((class json-serializable-class))
   (cons (find-class 'json-serializable) (call-next-method class)))
 

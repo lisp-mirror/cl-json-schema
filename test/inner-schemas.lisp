@@ -31,18 +31,19 @@
     (v:debug :test-inner-schema "~w" produced-schema)
     (parachute:finish (eval produced-schema)))
 
-   (let* ((inner-instance
-           (make-instance 'json-schema.test.inner-schema:m.room.message-content
-                          :msgtype "m.text"
-                          :body "hello"))
 
-          (outer-instance
-           (make-instance 'json-schema.test.inner-schema:m.room.message
-                          :content inner-instance))
+   (let ((inner-instance
+          (make-instance 'json-schema.test.inner-schema:m.room.message-content
+                         :msgtype "m.text"
+                         :body "hello")))
 
-          (serial-alist (jonathan:parse (jonathan:to-json outer-instance))))
      (parachute:is #'string= "hello"
-         (cdr (assoc "body" (cdr (assoc "content" serial-alist :test #'string=
-                                        :key #'car))
-                     :test #'string=
-                     :key #'car)))))
+                   (json-schema.test.inner-schema:body inner-instance))
+     (let* ((outer-instance
+             (make-instance 'json-schema.test.inner-schema:m.room.message
+                            :content inner-instance))
+
+            (serial-alist (jonathan:parse (jonathan:to-json outer-instance) :as :alist)))
+       (parachute:is #'string= "hello"
+                     (cdr (assoc "body" (cdr (assoc "content" serial-alist :test #'string=))
+                                 :test #'string=))))))
