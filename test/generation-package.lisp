@@ -10,8 +10,9 @@
 ;;; after immediatly ensuring the package at the top of the file.
 ;;; maybe we put thses tests in their own package and in the package file
 ;;; with a fresh compilation unit, ensure the target packages and exports.
-(defpackage+-1:ensure-package (string-upcase "json-schema.test.generated"))
-(defpackage+-1:ensure-package (string-upcase "json-schema.test.inner-schema"))
+(defpackage+-1:ensure-package :json-schema.test.generated)
+(defpackage+-1:ensure-package :json-schema.test.inner-schema)
 (defpackage+-1:ensure-export '(:msgtype :body :m.room.message-content :m.room.message)
                              (find-package :json-schema.test.inner-schema))
 
+(defpackage+-1:ensure-package :json-schema.test.anon-schemas)
