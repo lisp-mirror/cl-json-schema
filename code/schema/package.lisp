@@ -11,6 +11,7 @@
    #:keyword<-key
    #:with-hash-keys
    #:do-referenced-schemas
+   #:hash-filter
    ;; schema.lisp
    #:schema
    #:object

@@ -47,7 +47,17 @@ other schemas or pass through all slots/behavoir directly.")
   (:method (schema-name (option mop-option))
     (and (not (member schema-name (ref-overrides option) :test #'string=))
          (not (null (whitelist option)))
-         (member schema-name (whitelist option) :test #'string=))))
+         (member schema-name (whitelist option) :test #'string=)))
+
+  (:method ((schema schema) option)
+    (declare (ignore schema option))
+    nil)
+
+  (:method ((schema uri-schema) option)
+    (inherit-schema-p (name schema) option))
+
+  (:method ((schema named-schema) option)
+    (inherit-schema-p (name schema) option)))
 
 (defmethod json-schema.schema:internal-name ((schema schema) (option mop-option))
     (internal-name schema (target-package option)))

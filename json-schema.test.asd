@@ -12,4 +12,5 @@
                          (:file "generation")
                          (:file "reader")
                          (:file "resolve")
-                         (:file "inner-schemas")))))
+                         (:file "inner-schemas")
+                         (:file "anon-schemas")))))

@@ -132,7 +132,7 @@ specified in the schema")
         
         (do-referenced-schemas referenced-schema schema
          (cond
-           ((inherit-schema-p (name referenced-schema) option)
+           ((inherit-schema-p referenced-schema option)
             (push referenced-schema parents))
            (t 
             (multiple-value-bind (next-parents next-slots)
