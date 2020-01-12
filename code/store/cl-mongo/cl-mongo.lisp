@@ -36,17 +36,29 @@
     (loop :for class :in (c2mop:class-precedence-list (class-of object)) :do
          (loop
             :for slot :in (c2mop:class-direct-slots class) :do
-              (let ((slot-name (c2mop:slot-definition-name slot)))
-                (when (slot-boundp object slot-name)
-                  (cl-mongo::add-octets
-                   (cl-mongo::bson-encode (json-schema:json-key-name slot)
-                                          (slot-value object slot-name))
-                   array
-                   :start 4 :from-end 1)))))
+              (cl-mongo::bson-encode-container slot :array array :object object)))
     (cl-mongo::normalize-array array)))
+
+(defmethod cl-mongo::bson-encode-container ((slot json-schema:json-serializable-slot) &key array object)
+  (assert (not (null array)))
+  (assert (not (null object)))
+  (let ((slot-name (c2mop:slot-definition-name slot)))
+    (when (slot-boundp object slot-name)
+      (cl-mongo::add-octets
+       (cl-mongo::bson-encode (json-schema:json-key-name slot)
+                              (slot-value object slot-name))
+       array
+       :start 4 :from-end 1)))
+  array)
 
 (defmethod cl-mongo::bson-encode ((key string) (value json-schema:json-serializable) &key)
   (cl-mongo::bson-encode key (cl-mongo::bson-encode-container value)))
+
+(defmethod cl-mongo-meta:collection-name ((collection json-schema:json-serializable))
+  (prin1-to-string (class-name (class-of collection))))
+
+(defmethod cl-mongo-meta:db.insert ((collection json-schema:json-serializable) &key)
+  (cl-mongo:db.insert (cl-mongo-meta:collection-name collection) collection))
 
 ;;; allow the cl-mongo class to inherit the json-serializable one
 ;;; json-serializer methods for the cl-mongo-meta slots
