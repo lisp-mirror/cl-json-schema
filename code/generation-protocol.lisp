@@ -6,14 +6,19 @@
 (in-package #:json-schema)
 
 (defun cl-type<-json-schema-type (type)
-  (alexandria:switch (type :test #'string=)
-    ("string" 'string)
-    ("integer" 'integer)
-    ("number" 'number)
-    ("object" '(or json-schema:json-serializable string))
-    ("array" 'list)
-    ("boolean" 'boolean)
-    ("null" 'null)))
+  (etypecase type
+    (null 'null)
+    (list
+     `(or ,@ (mapcar #'cl-type<-json-schema-type type)))
+    (string
+     (alexandria:switch (type :test #'string=)
+       ("string" 'string)
+       ("integer" 'integer)
+       ("number" 'number)
+       ("object" '(or json-schema:json-serializable string))
+       ("array" 'list)
+       ("boolean" 'boolean)
+       ("null" 'null)))))
 
 (defgeneric produce-schema (schema option)
   (:documentation "This is the top generic you all to get everything
