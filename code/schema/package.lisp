@@ -19,6 +19,9 @@
    #:uri
    #:name
    #:named-schema
+   #:inner-schema
+   #:parent
+   #:parent-key
    #:make-load-form
    #:find-schema
    #:schema-name<-uri

@@ -31,6 +31,17 @@ Really don't know if this should be inherting schema but we'll stick to it.
 Way to fix is to just say not every schema will have a uri.
 I guess this is a sort of anon schema."))
 
+;;; might be an argument to add a parent uri later on.
+(defclass inner-schema (named-schema)
+  ((%parent :initarg :parent
+            :reader parent
+            :documentation "The parent schema to this inner schema.")
+
+   (%parent-key :initarg :parent-key
+                :reader parent-key
+                :type string
+                :documentation "The key on the parent that this schema came from.")))
+
 (defmethod make-load-form ((schema schema) &optional env)
   (make-load-form-saving-slots schema :environment env))
 
