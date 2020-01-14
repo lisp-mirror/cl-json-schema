@@ -55,3 +55,7 @@
                                   (list (slot-key-pair object slot slot-name)))))))))
     (jsown:to-json json)))
 
+(defmethod c2mop:class-direct-superclasses ((class json-serializable-class))
+  (append (remove (find-class 'standard-object) (call-next-method))
+          (list (find-class 'json-serializable)
+                (find-class 'standard-object))))
