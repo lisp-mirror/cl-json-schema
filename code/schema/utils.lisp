@@ -22,7 +22,7 @@
     (error "give me some keys ya fool"))
   `(let (,@ (loop :for key-specifier :in keys :collect
                  (destructuring-bind (key &optional default) key-specifier
-                   `(,(symbol<-key key)
+                   `(,(intern (%symbol<-key key))
                       (gethash ,key ,table ,default)))))
      ,@body))
 
