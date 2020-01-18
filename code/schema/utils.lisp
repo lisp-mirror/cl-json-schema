@@ -31,19 +31,9 @@
 REFERENCED-SCHEMA is the symbol to bind the refernced schema to.
 SCHEMA is a schema.
 "
-  (alexandria:with-gensyms (item all-of)
-    `(let ((,all-of (gethash "allOf" (object ,schema))))
-      (loop :for ,item :in ,all-of :do
-           (let ((,referenced-schema
-                  (let ((ref (gethash "$ref" ,item))
-                        (properties (gethash "properties" ,item)))
-                    (cond (ref (find-schema (relative-schema ref ,schema)))
-                          (properties
-                           (make-instance 'json-schema.schema:schema
-                                          :object ,item))
-                          (t nil)))))
-             (when ,referenced-schema
-               ,@body))))))
+  `(loop :for ,referenced-schema :in (find-referenced-schemas ,schema) :do
+        (when ,referenced-schema
+          ,@body)))
 
 (defun hash-filter (table &rest keys)
   (declare (optimize (speed 3) (safety 1) (debug 0)))

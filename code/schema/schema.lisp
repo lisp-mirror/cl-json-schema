@@ -1,17 +1,20 @@
 #|
-    Copyright (C) 2019 Gnuxie <Gnuxie@protonmail.com>
+    Copyright (C) 2019-2020 Gnuxie <Gnuxie@protonmail.com>
 |#
 
 (in-package #:json-schema.schema)
 
 (defclass schema ()
+  ())
+
+(defclass object-schema (schema)
   ((object :initarg :object
            :accessor object
            :type hash-table
            :documentation "The parsed json schema object"))
-  (:documentation "Holds the object and meta about a schema"))
+    (:documentation "Holds the object and meta about a schema"))
 
-(defclass uri-schema (schema)
+(defclass uri-schema (object-schema)
   ((uri :initarg :uri
         :accessor uri
         :documentation "The name uri for this schema.")))
@@ -21,7 +24,7 @@
   (:method ((schema uri-schema))
     (schema-name<-uri (uri schema))))
 
-(defclass named-schema (schema)
+(defclass named-schema (object-schema)
   ((name :initarg :name
           :accessor name
           :documentation "The name as it appears as a property on the parent-schema."))
@@ -32,15 +35,76 @@ Way to fix is to just say not every schema will have a uri.
 I guess this is a sort of anon schema."))
 
 ;;; might be an argument to add a parent uri later on.
-(defclass inner-schema (named-schema)
+(defclass inner-schema (schema)
   ((%parent :initarg :parent
             :reader parent
             :documentation "The parent schema to this inner schema.")
+
+   (%name :initarg :name
+          :accessor name
+          :documentation "The name, can't really inherit named-schema")
 
    (%parent-key :initarg :parent-key
                 :reader parent-key
                 :type string
                 :documentation "The key on the parent that this schema came from.")))
+
+(defmethod object ((schema inner-schema))
+  (let ((object
+         (funcall #'hash-filter (object (parent schema))
+                  "properties" (parent-key schema))))
+    (or object (make-hash-table :test #'equal))))
+
+
+(defgeneric find-referenced-schemas (schema)
+  (:documentation "returns a list of schemas that are referenced."))
+
+(defun unknown-item (item)
+  (let ((reference-list-item
+         (typecase item
+           (hash-table (alexandria:hash-table-alist item))
+           (t item))))
+    (warn "not sure how to resolve reference:~%~w~%skipping..."
+          reference-list-item))
+  nil)
+
+(defmethod find-referenced-schemas ((schema schema))
+  "returns schemas that are in the immediate allOf."
+  (let ((all-of (gethash "allOf" (object schema))))
+    (when all-of
+      (loop :for reference-list-item :in all-of :append
+           (let ((ref (gethash "$ref" reference-list-item))
+                 (properties (gethash "properties" reference-list-item)))
+             (cond (ref (list (find-schema (relative-schema ref schema))))
+                   (properties
+                    (list (make-instance 'json-schema.schema:object-schema
+                                         :object reference-list-item)))
+                   (t (unknown-item reference-list-item))))))))
+
+(defmethod find-referenced-schemas ((schema inner-schema))
+  (append
+   (call-next-method)
+   (let ((all-of (gethash "allOf" (object (parent schema)))))
+     (loop :for reference-list-item :in all-of :append
+          (let ((ref (gethash "$ref" reference-list-item))
+                (properties (gethash "properties" reference-list-item)))
+            (cond (ref
+                   (let ((new-parent-schema
+                          (find-schema (relative-schema ref (parent schema)))))
+                     (list
+                      (make-instance 'json-schema.schema:inner-schema
+                                     :parent new-parent-schema
+                                     :parent-key (parent-key schema)
+                                     :name
+                                     (format nil "~a-~a"
+                                             (%symbol<-key (name new-parent-schema))
+                                             (parent-key schema))))))
+                  (properties
+                   (let ((new-inner (gethash (parent-key schema) properties)))
+                     (when new-inner
+                       (list (make-instance 'json-schema.schema:object-schema
+                                            :object new-inner)))))
+                  (t (unknown-item reference-list-item))))))))
 
 (defmethod make-load-form ((schema schema) &optional env)
   (make-load-form-saving-slots schema :environment env))

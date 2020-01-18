@@ -27,6 +27,8 @@
    #:schema-name<-uri
    #:internal-name
    #:relative-schema
+   #:object-schema
+   #:find-referenced-schemas
    ))
 
 (in-package #:json-schema.schema)

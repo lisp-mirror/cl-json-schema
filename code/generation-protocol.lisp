@@ -27,8 +27,10 @@ The option is used to determine whether to use the mop impl or something else,
 like generating specific methods for this class.")
 
   (:method (schema (option mop-option))
-    `(progn ,(class<-object schema option)
-            ,(find-inner-classes schema option))))
+    (let ((output `(progn ,(class<-object schema option)
+                          ,(find-inner-classes schema option))))
+      (v:debug :produce-schema "~%~%~w" output)
+      output)))
 
 (defgeneric direct-slots<-schema (schema option)
   (:documentation "The will return a list of both direct-slots
@@ -51,7 +53,6 @@ for this schema definition.")
                         (inner-schema
                          (and inner-properties
                               (make-instance 'inner-schema
-                                             :object property
                                              :name (format nil "~a-~a"
                                                            (internal-name schema option)
                                                            key)
@@ -64,7 +65,8 @@ for this schema definition.")
   (:documentation "Produce a class from a json-schema object.")
 
   (:method ((schema schema) (option mop-option))
-    (multiple-value-bind (parents slots) (resolve-references schema option)
+    (multiple-value-bind (parents slots inner-schemas)
+        (resolve-references schema option)
       `(progn
          ,(unless (null parents) ; avoid style-warning for unused option.
             `(let ((option ,option))
@@ -77,7 +79,8 @@ for this schema definition.")
            ,slots
            ,@ (class-options<-schema schema option))
          ;; this is because our constructors need the c-p-l before make-instance.
-         (c2mop:finalize-inheritance (find-class ',(internal-name schema option)))))))
+         (c2mop:finalize-inheritance (find-class ',(internal-name schema option)))
+         ,inner-schemas))))
 
 (defgeneric slot<-property (name property parent-schema option)
   (:documentation "produce a slot definition for the property")
@@ -111,40 +114,50 @@ specified in the schema")
 
   (:method (schema (option mop-option))
     (let ((parents '())
-          (slots (direct-slots<-schema schema option)))
+          (slots (direct-slots<-schema schema option))
+          (inner-schemas '(progn)))
       
       (labels ((update-slot (slot)
                  (let ((association
                         (assoc (car slot) slots :test #'string-equal)))
                    (if association
-                     (loop :for (key value) :on (rest slot):by #'cddr :do
-                          (let ((existing-option (getf (rest association) key)))
-                            (unless existing-option
-                              (setf (getf existing-option key) value))))
-                     (push slot slots))))
+                       (loop :for (key value) :on (rest slot):by #'cddr :do
+                            (let ((existing-option (getf (rest association) key)))
+                              (unless existing-option
+                                (setf (getf existing-option key) value))))
+                       (push slot slots))))
 
                (add-slots (more-slots)
                  (mapc #'update-slot more-slots))
              
-             (add-parents (new-parents)
-               (setf parents (append parents new-parents))))
+               (add-parents (new-parents)
+                 (setf parents (append parents new-parents)))
+
+               (add-inner-schemas (next-inner-schemas)
+                 (setf inner-schemas
+                       (append inner-schemas
+                               (list next-inner-schemas)))))
         
         (do-referenced-schemas referenced-schema schema
-         (cond
-           ((inherit-schema-p referenced-schema option)
-            (push referenced-schema parents))
-           (t 
-            (multiple-value-bind (next-parents next-slots)
-                (resolve-references referenced-schema option)
-              (add-parents next-parents)
-              (add-slots next-slots)
-              (mapc (lambda (slot-option)
-                      (ensure-inherit (car slot-option)
-                                      (target-package option)))
-                    next-slots))))))
+          (cond
+            ((inherit-schema-p referenced-schema option)
+             (push referenced-schema parents))
+            (t
+             (add-inner-schemas
+              (find-inner-classes referenced-schema option))
+             (multiple-value-bind (next-parents next-slots next-inner-schemas)
+                 (resolve-references referenced-schema option)
+               (add-parents next-parents)
+               (add-slots next-slots)
+               (add-inner-schemas next-inner-schemas)
+               (mapc (lambda (slot-option)
+                       (ensure-inherit (car slot-option)
+                                       (target-package option)))
+                     next-slots))))))
       (values 
        parents
-       slots))))
+       slots
+       inner-schemas))))
 
 
 (defgeneric ensure-schema-class (schema option)
