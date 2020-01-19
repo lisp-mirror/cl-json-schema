@@ -67,7 +67,7 @@
 
 (defclass json/collection-slot (cl-mongo-meta:collection-slot
                                 json-schema:json-serializable-slot)
-  ((%json-ghost :initarg :json-ghostp
+  ((%json-ghost :initarg :json-ghost
                 :reader ghostp
                 :initform nil
                 :type boolean
