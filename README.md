@@ -4,7 +4,7 @@
 
 What this library already can do:
 
-* basically what json-mop does but is able to manage inheritance, so in way json-schema.mop islike a json-mop2
+* basically what json-mop does but is able to manage inheritance, so in way json-schema.mop is like a json-mop2
 
 The aims of this library are
 

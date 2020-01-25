@@ -2,7 +2,7 @@
     Copyright (C) 2019-2020 Gnuxie <Gnuxie@protonmail.com>
 |#
 
-(in-package #:json-schema)
+(in-package #:json-schema.jonathan)
 
 (defmethod slot-serializer (slot effective-slotd class instance-var)
   (declare (ignore effective-slotd class))
@@ -15,7 +15,8 @@
 (defmethod create-encoder ((class json-serializable-class))
   `(defmethod jonathan:%to-json :around ((object ,(class-name class)))
      (jonathan:with-object
-       ,@ (loop :for ((effective-slotd slot)) :on (slot-precedence-list class)
+       ,@ (loop :for ((effective-slotd slot))
+             :on (json-schema.mop:slot-precedence-list class)
              :collect (slot-serializer slot effective-slotd class 'object)))))
 
 (defmethod serialize-slot ((slot json-serializable-slot) effective-slotd class instance)
@@ -28,7 +29,8 @@
 (defmethod jonathan:%to-json ((object json-serializable))
   (let ((class (class-of object)))
     (with-object
-      (loop :for ((effective-slotd slot)) :on (slot-precedence-list class)
+      (loop :for ((effective-slotd slot))
+         :on (json-schema.mop:slot-precedence-list class)
          :do (serialize-slot slot effective-slotd class object)))))
 
 (defun key-normalizer (string)
