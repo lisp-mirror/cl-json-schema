@@ -1,6 +1,10 @@
 # json-schema
 
-## WIP (and currently unusable) json-schema library
+## WIP (and currently unstable) json-schema library
+
+What this library already can do:
+
+* basically what json-mop does but is able to manage inheritance, so in way json-schema.mop islike a json-mop2
 
 The aims of this library are
 
@@ -15,4 +19,6 @@ Any non conforming behavoir will be made clear.
 
 ## License
 
-NON-VIOLENT PUBLIC LICENSE v2
+NON-VIOLENT PUBLIC LICENSE v4+
+
+Am considering changing the license to Artistic 2.0.

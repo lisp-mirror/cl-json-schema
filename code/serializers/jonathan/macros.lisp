@@ -14,11 +14,15 @@
     
 |#
 
-(in-package #:json-schema)
+(in-package #:json-schema.jonathan)
 
 (defvar *first*)
 
 (defmacro within-object (&body body)
+  "The same functionality as jonathan:with-object except is to used to
+add key-values to an object within the dynamic context of a json-schema.jonathan:with-object
+(which was not possible before).
+"
   `(macrolet ((jonathan:write-key (key)
                 `(progn
                    (if *first*
