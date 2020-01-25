@@ -1,7 +1,7 @@
 ;;;; package.lisp
 
 (defpackage #:json-schema
-  (:use #:cl #:json-schema.schema)
+  (:use #:cl #:json-schema.schema #:json-schema.mop)
   (:export
    #:json-serializable-class
    #:json-serializable-slot

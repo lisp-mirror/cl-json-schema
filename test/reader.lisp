@@ -15,5 +15,6 @@
   
   (let* ((jsown-data '(:obj ("cheese" . "test-value")))
          (serializable-instance
-          (make-instance-from-json-using-serial (find-class 'the-big-cheese-wheel) jsown-data)))
+          (make-instance-from-json (find-class 'the-big-cheese-wheel)
+                                   (jonathan:to-json jsown-data :from :jsown))))
     (parachute:is #'string= "test-value" (slot-value serializable-instance 'cheese))))

@@ -26,10 +26,11 @@
           '(:obj ("type" . "m.room.message")))
          (inherited-event
           (make-instance-from-json 'json-schema.test.generated::sync-room-event
-                                   sample-sync-room-event-jsown)))
-    (verbose:debug :test-schema-resolvation (jsown:to-json inherited-event))
+                                   (jonathan:to-json sample-sync-room-event-jsown
+                                                     :from :jsown))))
+    (verbose:debug :test-schema-resolvation (jonathan:to-json inherited-event))
     (parachute:is #'equal sample-sync-room-event-jsown
-                  (jsown:parse (jsown:to-json inherited-event)))))
+                  (jonathan:parse (jonathan:to-json inherited-event) :as :jsown))))
 
 (parachute:define-test test-ref-overrides
   :parent test-schema-resolvation

@@ -1,0 +1,290 @@
+
+
+:: common-lisp
+CL-USER> (time (dotimes (_ 100000)
+		 (jonathan:to-json *alist-thing* :from :alist)))
+Evaluation took:
+  0.304 seconds of real time
+  0.307915 seconds of total run time (0.307611 user, 0.000304 system)
+  [ Run times consist of 0.027 seconds GC time, and 0.281 seconds non-GC time. ]
+  101.32% CPU
+  1,068,312,123 processor cycles
+  337,617,760 bytes consed
+  
+NIL
+::
+
+
+:: common-lisp
+CL-USER> (defparameter *alist-thing* '(:obj (:author . "gnuxie") (:date . "2020") (:isbn . 1312) (:publisher . "The biggest publisher for some reason")))
+*ALIST-THING*
+CL-USER> (time (dotimes (_ 100000)
+		 (jsown:to-json *alist-thing*)))
+Evaluation took:
+  0.548 seconds of real time
+  0.553932 seconds of total run time (0.546988 user, 0.006944 system)
+  [ Run times consist of 0.056 seconds GC time, and 0.498 seconds non-GC time. ]
+  101.09% CPU
+  1,923,220,706 processor cycles
+  774,423,040 bytes consed
+  
+NIL
+
+::
+
+
+
+:: common-lisp
+(defmethod jonathan:%to-json ((object json-serializable))
+  (jonathan:with-object
+    (loop :for class :in (c2mop:class-precedence-list (class-of object)) :do
+         (loop
+            :for slot :in (c2mop:class-direct-slots class) :do
+              (let* ((slot-name (c2mop:slot-definition-name slot)))
+                (when (slot-boundp object slot-name)
+                  (jonathan:write-key-value (json-key-name slot)
+                                            (slot-value object slot-name))))))))
+
+
+CL-USER> (time (dotimes (_ 100000)
+		 (jonathan:to-json *thing*)))
+
+Evaluation took:
+  0.394 seconds of real time
+  0.395858 seconds of total run time (0.372529 user, 0.023329 system)
+  [ Run times consist of 0.024 seconds GC time, and 0.372 seconds non-GC time. ]
+  100.51% CPU
+  1,380,758,644 processor cycles
+  337,620,944 bytes consed
+  
+NIL
+CL-USER> (time (dotimes (_ 100000)
+		 (jonathan:to-json *thing*)))
+Evaluation took:
+  0.375 seconds of real time
+  0.377890 seconds of total run time (0.374436 user, 0.003454 system)
+  [ Run times consist of 0.024 seconds GC time, and 0.354 seconds non-GC time. ]
+  100.80% CPU
+  1,316,282,549 processor cycles
+  337,592,672 bytes consed
+  
+NIL
+CL-USER> (time (dotimes (_ 100000)
+		 (jonathan:to-json *thing*)))
+Evaluation took:
+  0.384 seconds of real time
+  0.386861 seconds of total run time (0.386703 user, 0.000158 system)
+  [ Run times consist of 0.024 seconds GC time, and 0.363 seconds non-GC time. ]
+  100.78% CPU
+  1,347,699,125 processor cycles
+  337,595,680 bytes consed
+  
+NIL
+::
+
+
+:: common-lisp
+(defmethod jonathan:%to-json ((object json-serializable))
+  (let ((class (class-of object)))
+    (jonathan:with-object
+      (loop :for ((effective-slotd slot)) :on (slot-precedence-list class) :do
+           (when (c2mop:slot-boundp-using-class class object effective-slotd)
+             (jonathan:write-key-value
+              (json-key-name slot)
+              (c2mop:slot-value-using-class class object effective-slotd)))))))
+
+CL-USER> (time (dotimes (_ 100000)
+		 (jonathan:to-json *thing*)))
+
+Evaluation took:
+  0.345 seconds of real time
+  0.347948 seconds of total run time (0.335345 user, 0.012603 system)
+  [ Run times consist of 0.025 seconds GC time, and 0.323 seconds non-GC time. ]
+  100.87% CPU
+  1,211,191,851 processor cycles
+  337,626,640 bytes consed
+  
+NIL
+CL-USER> (time (dotimes (_ 100000)
+		 (jonathan:to-json *thing*)))
+Evaluation took:
+  0.332 seconds of real time
+  0.334025 seconds of total run time (0.333906 user, 0.000119 system)
+  [ Run times consist of 0.024 seconds GC time, and 0.311 seconds non-GC time. ]
+  100.60% CPU
+  1,164,416,281 processor cycles
+  337,607,360 bytes consed
+  
+NIL
+CL-USER> (time (dotimes (_ 100000)
+		 (jonathan:to-json *thing*)))
+Evaluation took:
+  0.344 seconds of real time
+  0.346155 seconds of total run time (0.336642 user, 0.009513 system)
+  [ Run times consist of 0.028 seconds GC time, and 0.319 seconds non-GC time. ]
+  100.58% CPU
+  1,204,662,048 processor cycles
+  337,573,712 bytes consed
+  
+NIL
+::
+
+
+
+
+:: common-lisp
+(defun %to-json<-finalized-class (class)
+  (declare (type json-serializable-class class))
+  `(defmethod jonathan:%to-json :around ((object ,(class-name class)))
+     (jonathan:with-object
+       ,@(loop :for slot :in (c2mop:class-direct-slots class) :collect
+              (let ((slot-name (c2mop:slot-definition-name slot)))
+                `(when (slot-boundp object ',slot-name)
+                   (jonathan:write-key-value
+                    ,(json-key-name slot)
+                    (slot-value object ',slot-name))))))))
+
+CL-USER> (time (dotimes (_ 100000)
+		 (jonathan:to-json *thing*)))
+
+Evaluation took:
+  0.323 seconds of real time
+  0.326148 seconds of total run time (0.325969 user, 0.000179 system)
+  [ Run times consist of 0.023 seconds GC time, and 0.304 seconds non-GC time. ]
+  100.93% CPU
+  1,134,665,068 processor cycles
+  337,590,992 bytes consed
+  
+NIL
+CL-USER> (time (dotimes (_ 100000)
+		 (jonathan:to-json *thing*)))
+Evaluation took:
+  0.319 seconds of real time
+  0.322043 seconds of total run time (0.321944 user, 0.000099 system)
+  [ Run times consist of 0.024 seconds GC time, and 0.299 seconds non-GC time. ]
+  100.94% CPU
+  1,120,145,109 processor cycles
+  337,594,096 bytes consed
+  
+NIL
+CL-USER> (time (dotimes (_ 100000)
+		 (jonathan:to-json *thing*)))
+Evaluation took:
+  0.326 seconds of real time
+  0.328337 seconds of total run time (0.319036 user, 0.009301 system)
+  [ Run times consist of 0.026 seconds GC time, and 0.303 seconds non-GC time. ]
+  100.61% CPU
+  1,142,587,577 processor cycles
+  337,594,432 bytes consed
+  
+NIL
+::
+
+
+
+
+
+
+
+
+:: common-lisp
+(defun %to-json<-finalized-class (class)
+  (declare (type json-serializable-class class))
+  `(defmethod jonathan:%to-json :around ((object ,(class-name class)))
+              (jonathan:with-object
+                ,@(loop :for ((effective-slotd slot)) :on (slot-precedence-list class) :collect
+                       `(when (c2mop:slot-boundp-using-class ,class object ,effective-slotd)
+                          (jonathan:write-key-value
+                           ,(json-key-name slot)
+                           (c2mop:slot-value-using-class object ,class ,effective-slotd)))))))
+
+CL-USER> (time (dotimes (_ 100000)
+		 (jonathan:to-json *thing*)))
+
+Evaluation took:
+  0.324 seconds of real time
+  0.326927 seconds of total run time (0.326782 user, 0.000145 system)
+  [ Run times consist of 0.025 seconds GC time, and 0.302 seconds non-GC time. ]
+  100.93% CPU
+  1,137,534,937 processor cycles
+  337,605,584 bytes consed
+  
+NIL
+CL-USER> (time (dotimes (_ 100000)
+		 (jonathan:to-json *thing*)))
+Evaluation took:
+  0.323 seconds of real time
+  0.325458 seconds of total run time (0.325407 user, 0.000051 system)
+  [ Run times consist of 0.023 seconds GC time, and 0.303 seconds non-GC time. ]
+  100.62% CPU
+  1,134,463,891 processor cycles
+  337,573,488 bytes consed
+  
+NIL
+CL-USER> (time (dotimes (_ 100000)
+		 (jonathan:to-json *thing*)))
+Evaluation took:
+  0.328 seconds of real time
+  0.331075 seconds of total run time (0.327632 user, 0.003443 system)
+  [ Run times consist of 0.030 seconds GC time, and 0.302 seconds non-GC time. ]
+  100.91% CPU
+  1,151,821,266 processor cycles
+  337,573,600 bytes consed
+  
+NIL
+::
+
+
+:: common-lisp
+(defun %to-json<-finalized-class (class)
+  (declare (type json-serializable-class class))
+  `(defmethod jonathan:%to-json :around ((object ,(class-name class)))
+              (jonathan:with-object
+                ,@(loop :for ((effective-slotd slot)) :on (slot-precedence-list class) :collect
+                       (let ((slot-name (c2mop:slot-definition-name slot)))
+                `(when (slot-boundp object ',slot-name)
+                   (jonathan:write-key-value
+                    ,(json-key-name slot)
+                    (slot-value object ',slot-name))))))))
+
+CL-USER> (time (dotimes (_ 100000)
+		 (jonathan:to-json *thing*)))
+
+Evaluation took:
+  0.322 seconds of real time
+  0.324300 seconds of total run time (0.324159 user, 0.000141 system)
+  [ Run times consist of 0.021 seconds GC time, and 0.304 seconds non-GC time. ]
+  100.62% CPU
+  1,128,866,692 processor cycles
+  337,574,464 bytes consed
+  
+NIL
+CL-USER> (time (dotimes (_ 100000)
+		 (jonathan:to-json *thing*)))
+Evaluation took:
+  0.322 seconds of real time
+  0.324955 seconds of total run time (0.324792 user, 0.000163 system)
+  [ Run times consist of 0.025 seconds GC time, and 0.300 seconds non-GC time. ]
+  100.93% CPU
+  1,130,489,993 processor cycles
+  337,595,424 bytes consed
+  
+NIL
+CL-USER> (time (dotimes (_ 100000)
+		 (jonathan:to-json *thing*)))
+Evaluation took:
+  0.318 seconds of real time
+  0.321736 seconds of total run time (0.321649 user, 0.000087 system)
+  [ Run times consist of 0.023 seconds GC time, and 0.299 seconds non-GC time. ]
+  101.26% CPU
+  1,118,894,705 processor cycles
+  337,599,152 bytes consed
+::
+
+### considerations
+
+ok so from this we will probably want a generic that returns the slot-writey form based on the slot type (to be used to create the base method)
+
+then another generic to do the same thing except for the faster method
+
+then define a method to create the faster override for a class at anytime.
