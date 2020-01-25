@@ -73,33 +73,33 @@
                 :type boolean
                 :documentation "Whether to serialize this slot to json.")))
 
-(defclass json/collection-class (cl-mongo-meta:collection-class)
+(defclass json/collection-class (cl-mongo-meta:collection-class
+                                 json-schema:json-serializable-class)
   ())
 
 (defclass json/bson-serializable (cl-mongo-meta:bson-serializable
                                   json-schema:json-serializable)
   ())
 
-;;; ok so this is a bit hacky but it'll do for now
-;;; we shold look at generating methods on finalize-inhertitance like postmodern
-;;; and then creating a method that can be dispatched on the slot type
-;;; to write a serializer for it.
-(defmethod jonathan:%to-json ((object json/bson-serializable))
-  (jonathan:with-object
-    (loop :for class :in (c2mop:class-precedence-list (class-of object)):do
-         (loop :for slot :in (c2mop:class-direct-slots class)
-            :when (typep slot 'json-schema:json-serializable-slot)
-            :do (let* ((slot-name (c2mop:slot-definition-name slot)))
-                  (when (slot-boundp object slot-name)
-                    (jonathan:write-key-value (json-schema:json-key-name slot)
-                                              (slot-value object slot-name))))
-            :when (typep slot 'json/collection-slot)
-            :do (when (and (not (ghostp slot))
-                           (c2mop:slot-boundp-using-class
-                            (class-of object) object slot))
-                  (jonathan:write-key-value (json-schema:json-key-name slot)
-                                            (c2mop:slot-value-using-class
-                                             (class-of object) object slot)))))))
+;;; remember to introduct json-ghostp
+(defmethod json-schema.jonathan:serialize-slot ((slot json/collection-slot)
+                                                effective-slotd class instance)
+  (json-schema.jonathan:within-object
+    (when (and (not (ghostp slot))
+               (c2mop:slot-boundp-using-class class instance effective-slotd))
+      (jonathan:write-key-value
+       (json-schema:json-key-name slot)
+       (c2mop:slot-value-using-class class instance effective-slotd)))))
+
+(defmethod json-schema.jonathan:slot-serializer ((slot json/collection-slot)
+                                                 effective-slotd class instance-var)
+  (declare (ignore effective-slotd class))
+  (let ((slot-name (c2mop:slot-definition-name slot)))
+    `(when (and (not ghostp slot)
+                (slot-boundp ,instance-var ',slot-name))
+       (jonathan:write-key-value
+        ,(json-schema:json-key-name slot)
+        (slot-value object ',slot-name)))))
 
 (defmethod c2mop:direct-slot-definition-class ((class json/collection-class)
                                                &rest initargs)
@@ -107,12 +107,16 @@
   (find-class 'json/collection-slot))
 
 (defmethod c2mop:class-direct-superclasses ((class json/collection-class))
-  (append (remove (find-class 'cl-mongo-meta:bson-serializable)
-                  (remove (find-class 'standard-object) (call-next-method)))
-          (list (find-class 'json/bson-serializable)
-                (find-class 'cl-mongo-meta:bson-serializable)
-                (find-class 'json-schema:json-serializable)
-                (find-class 'standard-object))))
+  (let* ((class-names-to-remove '(standard-object cl-mongo-meta:bson-serializable
+                                  json-schema:json-serializable))
+         (classes-to-remove (mapcar #'find-class class-names-to-remove)))
+    (append (remove-if (lambda (c-p-l-class)
+                         (member c-p-l-class classes-to-remove))
+                       (call-next-method))
+            (list (find-class 'json/bson-serializable)
+                  (find-class 'cl-mongo-meta:bson-serializable)
+                  (find-class 'json-schema:json-serializable)
+                  (find-class 'standard-object)))))
 
 (defmethod c2mop:validate-superclass ((class json/collection-class)
                                       (super c2mop:standard-class))

@@ -11,7 +11,7 @@
    ;; protocol
    #:serialize-slot
    #:create-encoder
-   #:create-serializer
+   #:slot-serializer
    ;; jonathan
    #:key-normalizer
    ))
