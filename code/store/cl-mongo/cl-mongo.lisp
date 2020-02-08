@@ -33,10 +33,8 @@
                                             &key (size 32) (array nil))
   (let ((array (or array (cl-mongo::make-octet-vector size))))
     (cl-mongo::add-octets (cl-mongo::int32-to-octet 0) array)
-    (loop :for class :in (c2mop:class-precedence-list (class-of object)) :do
-         (loop
-            :for slot :in (c2mop:class-direct-slots class) :do
-              (cl-mongo::bson-encode-container slot :array array :object object)))
+    (loop :for ((effective-slotd top-slot)) :on (json-schema.mop:slot-precedence-list (class-of object)) :do
+         (cl-mongo::bson-encode-container top-slot :array array :object object))
     (cl-mongo::normalize-array array)))
 
 (defmethod cl-mongo::bson-encode-container ((slot json-schema:json-serializable-slot) &key array object)
@@ -77,8 +75,8 @@
                                  json-schema:json-serializable-class)
   ())
 
-(defclass json/bson-serializable (cl-mongo-meta:bson-serializable
-                                  json-schema:json-serializable)
+(defclass json/bson-serializable (json-schema:json-serializable
+                                  cl-mongo-meta:bson-serializable)
   ())
 
 ;;; remember to introduct json-ghostp
@@ -108,14 +106,15 @@
 
 (defmethod c2mop:class-direct-superclasses ((class json/collection-class))
   (let* ((class-names-to-remove '(standard-object cl-mongo-meta:bson-serializable
-                                  json-schema:json-serializable))
+                                  json-schema:json-serializable
+                                  json/bson-serializable))
          (classes-to-remove (mapcar #'find-class class-names-to-remove)))
     (append (remove-if (lambda (c-p-l-class)
                          (member c-p-l-class classes-to-remove))
                        (call-next-method))
             (list (find-class 'json/bson-serializable)
-                  (find-class 'cl-mongo-meta:bson-serializable)
                   (find-class 'json-schema:json-serializable)
+                  (find-class 'cl-mongo-meta:bson-serializable)
                   (find-class 'standard-object)))))
 
 (defmethod c2mop:validate-superclass ((class json/collection-class)
