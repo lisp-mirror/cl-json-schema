@@ -1,5 +1,9 @@
 # json-schema
 
+## This project has been superseded
+
+The project has been superseded by [json-schema2](https://gitlab.com/Gnuxie/json-schema2/)
+
 ## WIP (and currently unstable) json-schema library
 
 What this library already can do:
